@@ -1,4 +1,4 @@
-package hw2;
+package project;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -8,6 +8,7 @@ import java.util.Scanner;
 public class CellNetwork {
 	java.util.ArrayList<CellTower> towers = new java.util.ArrayList<CellTower>();
 	int coveredPoints=0;
+	int id=0; 
 	
 	public CellNetwork(){}
 	
@@ -23,6 +24,14 @@ public class CellNetwork {
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public int getId(){
+		return id;
+	}
+	
+	public void setId(int id){
+		this.id=id;
 	}
 	
 	public void add(CellTower tower) {
@@ -57,7 +66,7 @@ public class CellNetwork {
 			str += towers.get(i).toString() + "\n";
 		}
 		
-		return str;
+		return this.id+ '\n' + "[" + str + "]" + '\n' + '\n';
 	}
 
 	public void clear() { // clears the cellnetwork of any towers
