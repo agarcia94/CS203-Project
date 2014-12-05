@@ -1,13 +1,9 @@
-package hw2;
+package project;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Scanner;
+import java.util.HashMap;
 
 public class App {
 
@@ -21,27 +17,39 @@ public class App {
 
 		final boolean isOSM = true;
 
+
 		RoadNetwork roadNetwork;
 		try {
 			File file = new File(roadFilename);
 			roadNetwork = new RoadNetwork(file, isOSM);
 			roadNetwork.draw();
 
-			for(Road road: roadNetwork.roads){
-				road.setPointAmount();
-				//System.out.println(road.id + ": " + road.getTotalPointAmount());
-			}
+			//			for(Road road: roadNetwork.roads){
+			//				road.setPointAmount();
+			//				System.out.println(road.id + ": " + road.getTotalPointAmount());
+			//			}
 
 			Road mostPoints= roadNetwork.hasMostPoints();  //road with the most post points in the road network
-			// System.out.println(mostPoints);
+			// System.out.println(mostP
 
 			long startTime = System.currentTimeMillis();
 
-			//	        int numcellTow = 3;
-			//	        double sigma = 0.2;
+
 
 			ArrayList<CellNetwork> cellNetworkConfigurations =
 					mostPoints.getAllCellConfigurations(numCellTower, sigma);
+			
+			for(CellNetwork cn : cellNetworkConfigurations){
+				System.out.println(cn);
+			}
+	        System.out.println("amount of networks: " + cellNetworkConfigurations.size());
+
+			
+			
+			int networkId=0;
+			for(CellNetwork network : cellNetworkConfigurations){
+				network.setId(networkId++);
+			}
 
 
 			for(CellNetwork networks: cellNetworkConfigurations)
@@ -53,56 +61,64 @@ public class App {
 
 			int bestScore = 0;
 			int count = 0;
-
-			ArrayList<Integer> removeNetworks=new ArrayList<Integer>();
-			for (CellNetwork cn : cellNetworkConfigurations) {
-				// do test on cn to see if cn's score is better than bestScore
-				// if it is update bestCellConfiguration = cn
-				for(int i = 0; i < cn.towers.size(); i++ ){		
-					for(int j = 0; j < cn.towers.size(); j++ ){ // individually compares each tower against each other
-					
-						
-						if(Math.sqrt((Math.pow(cn.towers.get(j).Xs() - cn.towers.get(i).Xs(),2) + Math.pow(cn.towers.get(j).Ys() - cn.towers.get(i).Ys(),2)))
-								< Math.max(cn.towers.get(i).radius, cn.towers.get(j).radius)){ //sqrt((j.Xs() - this. Xs())^2 + (j.Ys() - this.Ys())^2 < max of this.radius, other.radius
-							//System.out.println(cn);
-							RoadNetwork.deletedTowers.add(cn); //if its true then it adds it to an arrayList of deleted towers
-							int b = cellNetworkConfigurations.indexOf(cn);
-							removeNetworks.add(b);
-
-						}
-					
-					}
-				}
-				
-//				for(int n=0; n < removeNetworks.size(); n++){
-//					cellNetworkConfigurations.remove(removeNetworks.get(n)); //this for loop causes massive slowed performance
-//				}
-
-				System.out.println(count++);
-				if(cn.pointsCovered() > bestScore){
-					bestScore = cn.coveredPoints;
-					bestCellConfiguration = cn;
-
-				}
-
-			}
 			
-		
-			System.out.println(RoadNetwork.deletedTowers);
+			
+			ArrayList<Integer> removeNetworks=new ArrayList<Integer>();
+			int initialCount=cellNetworkConfigurations.size();
+//			int configurationsRemoved=0;
+//			
+//			for (int w =0; w < cellNetworkConfigurations.size(); w++) {
+//			
+//				CellNetwork cn= cellNetworkConfigurations.get(w);
+//				for(int i = 0; i < cn.towers.size(); i++ ){		
+//					for(int j = 0; j < cn.towers.size(); j++ ){ // individually compares each tower against each other
+//						double distance= Math.sqrt(Math.pow(cn.towers.get(i).Xs() - cn.towers.get(j).Xs(), 2) + 
+//								Math.pow(cn.towers.get(i).Ys() - cn.towers.get(j).Ys(), 2));
+//
+//						if(i != j){
+//							if(distance < (cn.towers.get(i).radius + cn.towers.get(j).radius)){
+//								RoadNetwork.deletedTowers.put(cn.id,cn);
+//								removeNetworks.add(w);
+//								
+//							}
+//						}
+//
+//					}
+//				}
+//				
+//			}
+//
+//			for(int n=0; n < removeNetworks.size(); n++){
+//			configurationsRemoved++;
+//				cellNetworkConfigurations.remove(removeNetworks.get(n)); //this for loop causes massive slowed performance
+//		}
+
+			//				System.out.println(count++);
+			//			System.out.println(deletedTowers.values());
+			//				if(cn.pointsCovered() > bestScore){
+			//					bestScore = cn.coveredPoints;
+			//					bestCellConfiguration = cn;
+			//
+			//				}
+
+
+
+
+			//			System.out.println(RoadNetwork.deletedTowers);
 			//	        System.out.println("Best Score: " +  bestScore);
 			//	        System.out.println("Best CellConfiguration: " +  bestCellConfiguration);
-			
-			bestCellConfiguration.draw();
 
-			long finishTime = System.currentTimeMillis();
-			try {
-				File file2 = new File(reportFilename);
-				Report re = new Report(file2);
-				re.write(mostPoints, bestCellConfiguration, startTime, finishTime);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			//			bestCellConfiguration.draw();
+
+//			long finishTime = System.currentTimeMillis();
+//			try {
+//				File file2 = new File(reportFilename);
+//				Report re = new Report(file2);
+//				re.write(RoadNetwork.deletedTowers.values(), initialCount, configurationsRemoved);
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
