@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class App {
 
@@ -24,28 +25,19 @@ public class App {
 			roadNetwork = new RoadNetwork(file, isOSM);
 			roadNetwork.draw();
 
-			//			for(Road road: roadNetwork.roads){
-			//				road.setPointAmount();
-			//				System.out.println(road.id + ": " + road.getTotalPointAmount());
-			//			}
+			for(Road road: roadNetwork.roads)
+				road.setPointAmount();
 
 			Road mostPoints= roadNetwork.hasMostPoints();  //road with the most post points in the road network
 			// System.out.println(mostP
 
-			long startTime = System.currentTimeMillis();
+//			long startTime = System.currentTimeMillis();
 
 
 
 			ArrayList<CellNetwork> cellNetworkConfigurations =
 					mostPoints.getAllCellConfigurations(numCellTower, sigma);
-			
-			for(CellNetwork cn : cellNetworkConfigurations){
-				System.out.println(cn);
-			}
-	        System.out.println("amount of networks: " + cellNetworkConfigurations.size());
 
-			
-			
 			int networkId=0;
 			for(CellNetwork network : cellNetworkConfigurations){
 				network.setId(networkId++);
@@ -56,69 +48,64 @@ public class App {
 				networks.setAmountOfCoveredPoints(mostPoints);
 
 
+//			HashSet<Integer> removeNetworks=new HashSet<Integer>();
+			int initialCount=cellNetworkConfigurations.size();
+
+
+
+			int configurationsRemoved=0;
+
+
+
+			Overlap over= new Overlap(cellNetworkConfigurations);
+			over.checkOverlap();
+			over.remove();
+			ArrayList<CellNetwork> remainingNetworks = over.getNetworks();
+			int finalCount= remainingNetworks.size();
+			for(CellNetwork network : remainingNetworks){
+				System.out.println(network);
+			}
+
+			System.out.println("Search: " + RoadNetwork.deletedTowers.get(1931));
 
 			CellNetwork bestCellConfiguration = null;
-
 			int bestScore = 0;
-			int count = 0;
-			
-			
-			ArrayList<Integer> removeNetworks=new ArrayList<Integer>();
-			int initialCount=cellNetworkConfigurations.size();
-//			int configurationsRemoved=0;
-//			
-//			for (int w =0; w < cellNetworkConfigurations.size(); w++) {
-//			
-//				CellNetwork cn= cellNetworkConfigurations.get(w);
-//				for(int i = 0; i < cn.towers.size(); i++ ){		
-//					for(int j = 0; j < cn.towers.size(); j++ ){ // individually compares each tower against each other
-//						double distance= Math.sqrt(Math.pow(cn.towers.get(i).Xs() - cn.towers.get(j).Xs(), 2) + 
-//								Math.pow(cn.towers.get(i).Ys() - cn.towers.get(j).Ys(), 2));
-//
-//						if(i != j){
-//							if(distance < (cn.towers.get(i).radius + cn.towers.get(j).radius)){
-//								RoadNetwork.deletedTowers.put(cn.id,cn);
-//								removeNetworks.add(w);
-//								
-//							}
-//						}
-//
-//					}
-//				}
-//				
-//			}
-//
-//			for(int n=0; n < removeNetworks.size(); n++){
-//			configurationsRemoved++;
-//				cellNetworkConfigurations.remove(removeNetworks.get(n)); //this for loop causes massive slowed performance
-//		}
+			for(CellNetwork cn : remainingNetworks){
+				if(cn.pointsCovered() > bestScore){
+					bestScore = cn.coveredPoints;
+					bestCellConfiguration = cn;
 
-			//				System.out.println(count++);
+				}
+			}
+			bestCellConfiguration.draw();
+			System.out.println("Best CellConfiguration: " +  bestCellConfiguration);
+			System.out.println("Initial Count:" + initialCount);
+			System.out.println("Final count: " + remainingNetworks.size());
+
+
+
+
+			//			System.out.println(count++);
 			//			System.out.println(deletedTowers.values());
-			//				if(cn.pointsCovered() > bestScore){
-			//					bestScore = cn.coveredPoints;
-			//					bestCellConfiguration = cn;
-			//
-			//				}
+
 
 
 
 
 			//			System.out.println(RoadNetwork.deletedTowers);
 			//	        System.out.println("Best Score: " +  bestScore);
-			//	        System.out.println("Best CellConfiguration: " +  bestCellConfiguration);
 
-			//			bestCellConfiguration.draw();
+
 
 //			long finishTime = System.currentTimeMillis();
-//			try {
-//				File file2 = new File(reportFilename);
-//				Report re = new Report(file2);
-//				re.write(RoadNetwork.deletedTowers.values(), initialCount, configurationsRemoved);
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
+			try {
+				File file2 = new File(reportFilename);
+				Report re = new Report(file2);
+				re.write(RoadNetwork.deletedTowers.values(), initialCount, over.getConfigurationsRemoved());
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -133,6 +120,7 @@ public class App {
 
 		//
 		StdDraw.save(imageFilename);
-
 	}
+
+
 }
